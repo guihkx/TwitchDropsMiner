@@ -94,7 +94,7 @@ exe = EXE(
     a.datas,
     [],
     upx=True,
-    debug=False,
+    debug="imports,bootloader",
     strip=False,
     console=False,
     upx_exclude=[],
