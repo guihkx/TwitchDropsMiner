@@ -94,11 +94,9 @@ pyz = PYZ(a.pure, a.zipped_data, cipher=block_cipher)
 exe = EXE(
     pyz,
     a.scripts,
-    a.binaries,
-    a.zipfiles,
-    a.datas,
     [],
     upx=True,
+    exclude_binaries=True,
     debug="imports,bootloader",
     strip=False,
     console=False,
@@ -110,5 +108,12 @@ exe = EXE(
     icon="icons/pickaxe.ico",
     bootloader_ignore_signals=False,
     disable_windowed_traceback=False,
+    name="TwitchDropsMiner",
+)
+coll = COLLECT(
+    exe,
+    a.binaries,
+    a.zipfiles,
+    a.datas,
     name="Twitch Drops Miner (by DevilXD)",
 )
