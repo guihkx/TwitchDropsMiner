@@ -481,6 +481,7 @@ class Twitch:
             connector=connector,
             cookie_jar=cookie_jar,
             headers={"User-Agent": self._client_type.USER_AGENT},
+            trust_env=True
         )
         return self._session
 
