@@ -49,6 +49,7 @@ class BaseDrop:
         self.ends_at: datetime = timestamp(data["endAt"])
         self.claim_id: str | None = None
         self.is_claimed: bool = False
+        bugged_time = datetime(1, 1, 1, 0, 0, tzinfo=timezone.utc) # Twitch sometimes falsely reports this as last time claimed.
         if "self" in data:
             self.claim_id = data["self"]["dropInstanceID"]
             self.is_claimed = data["self"]["isClaimed"]
@@ -66,7 +67,7 @@ class BaseDrop:
                     if (bid := benefit.id) in claimed_benefits
                 ]
             )
-            and all(self.starts_at <= dt < self.ends_at for dt in dts)
+            and all( (self.starts_at <= dt < self.ends_at) | (dt == bugged_time) for dt in dts)
         ):
             self.is_claimed = True
         self._precondition_drops: list[str] = [d["id"] for d in (data["preconditionDrops"] or [])]
@@ -270,7 +271,7 @@ class TimedDrop(BaseDrop):
         else:
             self.current_minutes = self.required_minutes
         self._on_minutes_changed()
-        self.display()
+        #self.display()
 
     def display(self, *, countdown: bool = True, subone: bool = False):
         self._manager.display_drop(self, countdown=countdown, subone=subone)
@@ -279,7 +280,7 @@ class TimedDrop(BaseDrop):
         if self.current_minutes < self.required_minutes:
             self.current_minutes += 1
             self._on_minutes_changed()
-        self.display()
+        #self.display()
 
 
 class DropsCampaign:
@@ -380,8 +381,7 @@ class DropsCampaign:
 
     def _base_can_earn(self, channel: Channel | None = None) -> bool:
         return (
-            self.linked  # account is connected
-            and self.active  # campaign is active
+            self.active  # campaign is active
             # channel isn't specified, or there's no ACL, or the channel is in the ACL
             and (channel is None or not self.allowed_channels or channel in self.allowed_channels)
         )
@@ -394,8 +394,7 @@ class DropsCampaign:
         # Same as can_earn, but doesn't check the channel
         # and uses a future timestamp to see if we can earn this campaign later
         return (
-            self.linked
-            and self.ends_at > datetime.now(timezone.utc)
+            self.ends_at > datetime.now(timezone.utc)
             and self.starts_at < stamp
             and any(drop.can_earn_within(stamp) for drop in self.drops)
         )

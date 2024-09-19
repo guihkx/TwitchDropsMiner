@@ -332,7 +332,7 @@ GQL_OPERATIONS: dict[str, GQLOperation] = {
             "channelID": ...,  # channel ID as a str
         },
     ),
-    # retuns stream playback access token
+    # returns stream playback access token
     "PlaybackAccessToken": GQLOperation(
         "PlaybackAccessToken",
         "3093517e37e4f4cb48906155bcd894150aef92617939236d2508f3375ab732ce",

@@ -139,6 +139,7 @@
                 "tray": "Automatisk start i systembakken: ",
                 "tray_notifications": "Bakkemeddelelser: ",
                 "priority_only": "Kun prioritet: ",
+                "unlinked_campaigns": "Tillad ikke-linkede kampagner: ",
                 "proxy": "Proxy (kræver genstart):"
             },
             "game_name": "Spilnavn",

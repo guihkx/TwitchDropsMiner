@@ -1,4 +1,6 @@
-# Twitch Drops Miner
+# Twitch Drops Miner -- Docker
+
+Thanks to @DevilXD and other contributors from the [original repo](https://github.com/DevilXD/TwitchDropsMiner) for the vast majority of the code.
 
 This application allows you to AFK mine timed Twitch drops, without having to worry about switching channels when the one you were watching goes offline, claiming the drops, or even receiving the stream data itself. This helps both you and Twitch save on bandwidth and hassle. Everyone wins!
 
@@ -17,12 +19,60 @@ Every several seconds, the application pretends to watch a particular stream by 
 - Login session is saved in a cookies file, so you don't need to login every time.
 - Mining is automatically started as new campaigns appear, and stopped when the last available drops have been mined.
 
+### Docker Usage:
+
+You can use pre-built Docker images to run Twitch Drops Miner:
+
+1. **Pull the Docker Image:**
+
+   You can choose from two Docker image repositories:
+
+   - From Docker Hub:
+
+     ```sh
+     docker pull journeyover/twitchdropsminer:latest
+     ```
+
+   - From GitHub Container Registry:
+
+     ```sh
+     docker pull ghcr.io/journeydocker/twitchdropsminer:latest
+     ```
+
+2. **Run the Docker Container:**
+
+   Configure the container with environment variables to customize its behavior:
+
+   - **Allow Unlinked Campaigns:** Set the `UNLINKED_CAMPAIGNS` environment variable to `0` to disable mining drops from campaigns that are not linked to your account. By default, this is set to `1` (enabled). Note that even when unlinked campaigns are enabled, the application will still consider your priority list, so ensure the desired game is included in your priority list.
+
+   - **Priority Mode:** Set the `PRIORITY_MODE` environment variable to one of the following values to determine how the miner prioritizes campaigns:
+     - `0`: **Use the priority list directly.** Campaigns are mined in the exact order they appear in the priority list, without additional prioritization.
+     - `1`: **Prioritize based on time-to-end.** Campaigns in the priority list are mined based on how soon they are ending, with those nearing their end being prioritized higher.
+     - `2` (default): **Optimize by time ratio.** Campaigns are prioritized according to the ratio of elapsed time to remaining time, aiming to mine campaigns that are ending soonest more accurately.
+
+   Example of running the container with these environment variables:
+
+   ```sh
+    docker run -itd \
+      --init \
+      --pull=always \
+      --restart=always \
+      -e UNLINKED_CAMPAIGNS=Value \
+      -e PRIORITY_MODE=Value \
+      -v ./cookies.jar:/TwitchDropsMiner/cookies.jar \
+      -v ./settings.json:/TwitchDropsMiner/settings.json \
+      -v /etc/localtime:/etc/localtime:ro \
+      --name twitch_drops_miner \
+      ghcr.io/journeyover/twitchdropsminer:latest
+   ```
+
+- **Docker Considerations:** If you are running the application in Docker, remember to shut down the container before making changes directly to the `settings.json` file.
+
 ### Usage:
 
 - Download and unzip [the latest release](https://github.com/DevilXD/TwitchDropsMiner/releases) - it's recommended to keep it in the folder it comes in.
 - Run it and login/connect the miner to your Twitch account by using the in-app login form.
 - After a successful login, the app should fetch a list of all available campaigns and games you can mine drops for - you can then select and add games of choice to the Priority List available on the Settings tab, and then press on the `Reload` button to start processing. It will fetch a list of all applicable streams it can watch, and start mining right away. You can also manually switch to a different channel as needed.
-- If you wish to keep the miner occupied with mining anything it can, beyond what you've selected via the Priority List, you can use the Priority Mode setting to specify the mining order for the rest of the games.
 - Make sure to link your Twitch account to game accounts on the [campaigns page](https://www.twitch.tv/drops/campaigns), to enable more games to be mined.
 
 ### Pictures:
@@ -33,19 +83,19 @@ Every several seconds, the application pretends to watch a particular stream by 
 
 ### Notes:
 
-> [!WARNING]  
+> [!WARNING]
 > Requires Python 3.10 or higher.
 
-> [!CAUTION]  
+> [!CAUTION]
 > Persistent cookies will be stored in the `cookies.jar` file, from which the authorization (login) information will be restored on each subsequent run. Make sure to keep your cookies file safe, as the authorization information it stores can give another person access to your Twitch account.
 
-> [!IMPORTANT]  
+> [!IMPORTANT]
 > Successfully logging into your Twitch account in the application may cause Twitch to send you a "New Login" notification email. This is normal - you can verify that it comes from your own IP address. The detected browser during the login will be "Chrome", as that's what the miner currently presents itself as internally.
 
-> [!NOTE]  
+> [!NOTE]
 > The miner uses an OAuth login flow to let you authorize it to use your account. This is done by entering the code printed in the miner's Output window on the [Twitch device activation page](https://www.twitch.tv/activate). If you'd ever wish to unlink the miner from your Twitch account, head over to the [connections page,](https://www.twitch.tv/settings/connections) where you should be able to find the miner in the "Other connections" section. It will be listed as "Twitch Mobile Web". Simply click on "Disconnect" to remove the link and invalidate the authorization token.
 
-> [!NOTE]  
+> [!NOTE]
 > The time remaining timer always countdowns a single minute and then stops - it is then restarted only after the application redetermines the remaining time. This "redetermination" can happen at any time Twitch decides to report on the drop's progress, but not later than 20 seconds after the timer reaches zero. The seconds timer is only an approximation and does not represent nor affect actual mining speed. The time variations are due to Twitch sometimes not reporting drop progress at all, or reporting progress for the wrong drop - these cases have all been accounted for in the application though.
 
 ### Notes about the Windows build:
@@ -96,17 +146,10 @@ TDM is not intended for/as:
 - Mining anything else besides Twitch drops - no, I won't be adding support for a random 3rd party site that also happens to rely on watching Twitch streams.
 - Unattended operation: worst case scenario, it'll stop working and you'll hopefully notice that at some point. Hopefully.
 - 100% uptime application, due to the underlying nature of it, expect fatal errors to happen every so often.
-- Being hosted on a remote server as a 24/7 miner.
 - Being used with more than one managed account.
-- Mining campaigns the managed account isn't linked to.
 
 This means that features such as:
 
-- It being possible to run it without a GUI, or with only a console attached.
-- Any form of automatic restart when an error happens.
-- Docker or any other form of remote deployment.
-- Using it with more than one managed account.
-- Making it possible to mine campaigns that the managed account isn't linked to.
 - Anything that increases the site processing load caused by the application.
 - Any form of additional notifications system (email, webhook, etc.), beyond what's already implemented.
 
@@ -125,19 +168,21 @@ if they aren't already there. Doing so ensures proper markdown rendering on Gith
 • Please leave a single empty new line at the end of the file.
 -->
 
-@Suz1e - For the entirety of the Chinese (简体中文) translation and revisions.  
-@wwj010 - For the Chinese (简体中文) translation corrections and revisions.  
-@nwvh - For the entirety of the Czech (Čeština) translation.  
-@ThisIsCyreX - For the entirety of the German (Deutsch) translation.  
-@Shofuu - For the entirety of the Spanish (Español) translation.  
-@zarigata - For the entirety of the Portuguese (Português) translation.  
-@alikdb - For the entirety of the Turkish (Türkçe) translation.  
-@roobini-gamer - For the entirety of the French (Français) translation.  
-@Sergo1217 - For the entirety of the Russian (Русский) translation.  
-@Ricky103403 - For the entirety of the Traditional Chinese (繁體中文) translation.  
-@Patriot99 - For the Polish (Polski) translation (co-authored with @DevilXD).  
-@Nollasko - For the entirety of the Ukrainian (Українська) translation.  
-@casungo - For the entirety of the Italian (Italiano) translation.  
-@Bamboozul - For the entirety of the Arabic (العربية) translation.  
-@Kjerne - For the entirety of the Danish (Dansk) translation.  
-@ShimadaNanaki - For the entirety of the Japanese (日本語) translation.
+| Contributor            | Translation                                      |
+|------------------------|--------------------------------------------------|
+| @Suz1e                 | Chinese (Simplified) - 简体中文                   |
+| @wwj010                | Chinese (Simplified) - Corrections and Revisions |
+| @nwvh                  | Czech - Čeština                                  |
+| @ThisIsCyreX           | German - Deutsch                                 |
+| @Shofuu                | Spanish - Español                                |
+| @zarigata              | Portuguese - Português                           |
+| @alikdb                | Turkish - Türkçe                                 |
+| @roobini-gamer         | French - Français                                |
+| @Sergo1217             | Russian - Русский                                |
+| @Ricky103403           | Chinese (Traditional) - 繁體中文                  |
+| @Patriot99 & @DevilXD  | Polish - Polski                                  |
+| @Nollasko              | Ukrainian - Українська                           |
+| @casungo               | Italian - Italiano                               |
+| @Bamboozul             | Arabic - العربية                                 |
+| @Kjerne                | Danish - Dansk                                   |
+| @ShimadaNanaki         | Japanese - 日本語                                 |

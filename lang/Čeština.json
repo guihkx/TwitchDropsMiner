@@ -131,6 +131,7 @@
                 "autostart": "Automatické spuštění: ",
                 "tray": "Automaticky spusti minimalizovaně: ",
                 "priority_only": "Pouze prioritní: ",
+                "unlinked_campaigns": "Povolit nepřipojené kampaně: ",
                 "proxy": "Proxy:"
             },
             "game_name": "Název Hry",

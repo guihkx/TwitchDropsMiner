@@ -12,6 +12,7 @@ from collections import abc
 from textwrap import dedent
 from math import log10, ceil
 from dataclasses import dataclass
+from time import time
 from tkinter.font import Font, nametofont
 from functools import partial, cached_property
 from datetime import datetime, timedelta, timezone
@@ -28,6 +29,7 @@ if sys.platform == "win32":
     import win32con
     import win32gui
 
+from cache import CurrentSeconds
 from translate import _
 from cache import ImageCache
 from exceptions import MinerException, ExitRequest
@@ -704,6 +706,7 @@ class CampaignProgress:
         drop_vars: _DropVars = self._vars["drop"]
         campaign_vars: _CampaignVars = self._vars["campaign"]
         dseconds = seconds % 60
+        CurrentSeconds.set_current_seconds(dseconds)
         hours, minutes = self._divmod(drop_minutes, seconds)
         drop_vars["remaining"].set(
             _("gui", "progress", "remaining").format(time=f"{hours:>2}:{minutes:02}:{dseconds:02}")
@@ -723,6 +726,10 @@ class CampaignProgress:
         self._timer_task = None
 
     def start_timer(self):
+        self._manager.print(f"Progress: {self._drop.current_minutes}/{self._drop.required_minutes} - {self._drop.campaign}")
+        if os.getenv('TDM_DOCKER'):
+          with open('healthcheck.timestamp', 'w') as f:
+            f.write(str(int(time())))
         if self._timer_task is None:
             if self._drop is None or self._drop.remaining_minutes <= 0:
                 # if we're starting the timer at 0 drop minutes,
@@ -1545,6 +1552,7 @@ class _SettingsVars(TypedDict):
     autostart: IntVar
     language: StringVar
     priority_mode: StringVar
+    unlinked_campaigns: IntVar
     tray_notifications: IntVar
 
 
@@ -1570,6 +1578,7 @@ class SettingsPanel:
             "proxy": StringVar(master, str(self._settings.proxy)),
             "tray": IntVar(master, self._settings.autostart_tray),
             "priority_mode": StringVar(master, self.PRIORITY_MODES[priority_mode]),
+            "unlinked_campaigns": IntVar(master, self._settings.unlinked_campaigns),
             "tray_notifications": IntVar(master, self._settings.tray_notifications),
         }
         self._game_names: set[str] = set()
@@ -1623,6 +1632,12 @@ class SettingsPanel:
             checkboxes_frame,
             variable=self._vars["tray_notifications"],
             command=self.update_notifications,
+        ).grid(column=1, row=irow, sticky="w")
+        ttk.Label(
+            checkboxes_frame, text=_("gui", "settings", "general", "unlinked_campaigns")
+        ).grid(column=0, row=(irow := irow + 1), sticky="e")
+        ttk.Checkbutton(
+            checkboxes_frame, variable=self._vars["unlinked_campaigns"], command=self.unlinked_campaigns
         ).grid(column=1, row=irow, sticky="w")
         ttk.Label(
             checkboxes_frame, text=_("gui", "settings", "general", "priority_mode")
@@ -1888,6 +1903,9 @@ class SettingsPanel:
             if mode_name == name:
                 self._settings.priority_mode = value
                 break
+
+    def unlinked_campaigns(self) -> None:
+        self._settings.unlinked_campaigns = bool(self._vars["unlinked_campaigns"].get())
 
     def exclude_add(self) -> None:
         game_name: str = self._exclude_entry.get()
@@ -2279,6 +2297,7 @@ class GUIManager:
         self.tray.update_title(None)
 
     def print(self, message: str):
+        print(f"{datetime.now().strftime('%Y-%m-%d %X')}: {message}")
         # print to our custom output
         self.output.print(message)
 
@@ -2408,6 +2427,7 @@ if __name__ == "__main__":
                 proxy=URL(),
                 autostart=False,
                 language="English",
+                unlinked_campaigns=False,
                 autostart_tray=False,
                 exclude={"Lit Game"},
                 tray_notifications=True,

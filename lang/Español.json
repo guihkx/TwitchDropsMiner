@@ -139,6 +139,7 @@
                 "tray": "Ejecutar en la bandeja del sistema: ",
                 "tray_notifications": "Mostrar notificaciones: ",
                 "priority_only": "Minar solo juegos preferidos: ",
+                "unlinked_campaigns": "Permitir campañas desvinculadas: ",
                 "proxy": "Proxy (requiere reinicio):"
             },
             "game_name": "Nombre del juego",

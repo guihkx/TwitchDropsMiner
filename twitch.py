@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import os
 import json
 import asyncio
 import logging
@@ -15,6 +16,7 @@ from typing import Any, Literal, Final, NoReturn, overload, cast, TYPE_CHECKING
 import aiohttp
 from yarl import URL
 
+from cache import CurrentSeconds
 from translate import _
 from gui import GUIManager
 from channel import Channel
@@ -652,6 +654,7 @@ class Twitch:
                 priority = self.settings.priority
                 priority_mode = self.settings.priority_mode
                 priority_only = priority_mode is PriorityMode.PRIORITY_ONLY
+                unlinked_campaigns = self.settings.unlinked_campaigns
                 next_hour = datetime.now(timezone.utc) + timedelta(hours=1)
                 # sorted_campaigns: list[DropsCampaign] = list(self.inventory)
                 sorted_campaigns: list[DropsCampaign] = self.inventory
@@ -670,8 +673,9 @@ class Twitch:
                     if (
                         game not in self.wanted_games  # isn't already there
                         # and isn't excluded by list or priority mode
-                        and game.name not in exclude
-                        and (not priority_only or game.name in priority)
+                        and (game.name not in exclude and game.name in priority)
+                        # and user wants unlinked games or the game is linked
+                        and (unlinked_campaigns or campaign.linked)
                         # and can be progressed within the next hour
                         and campaign.can_earn_within(next_hour)
                     ):
@@ -866,6 +870,9 @@ class Twitch:
             elif self._state is State.EXIT:
                 self.gui.tray.change_icon("pickaxe")
                 self.gui.status.update(_("gui", "status", "exiting"))
+                if os.getenv('TDM_DOCKER'):
+                  with open('healthcheck.exitstate', 'w') as f:
+                    f.write('Container is Unhealthy')
                 # we've been requested to exit the application
                 break
             await self._state_change.wait()
@@ -912,6 +919,7 @@ class Twitch:
                     drop = self._drops.get(drop_data["dropID"])
                     if drop is not None and drop.can_earn(channel):
                         drop.update_minutes(drop_data["currentMinutesWatched"])
+                        drop.display()
                         drop_text = (
                             f"{drop.name} ({drop.campaign.game}, "
                             f"{drop.current_minutes}/{drop.required_minutes})"
@@ -923,12 +931,15 @@ class Twitch:
                 # right now, and then bump up the minutes on that drop
                 if not handled:
                     if (drop := self.get_active_drop(channel)) is not None:
-                        drop.bump_minutes()
-                        drop_text = (
-                            f"{drop.name} ({drop.campaign.game}, "
-                            f"{drop.current_minutes}/{drop.required_minutes})"
-                        )
-                        logger.log(CALL, f"Drop progress from active search: {drop_text}")
+                        current_seconds = CurrentSeconds.get_current_seconds()
+                        if current_seconds < 1:
+                            drop.bump_minutes()
+                            drop.display()
+                            drop_text = (
+                                f"{drop.name} ({drop.campaign.game}, "
+                                f"{drop.current_minutes}/{drop.required_minutes})"
+                            )
+                            logger.log(CALL, f"Drop progress from active search: {drop_text}")
                         handled = True
                     else:
                         logger.log(CALL, "No active drop could be determined")
@@ -956,6 +967,9 @@ class Twitch:
                 trigger_type = "Cleanup"
             else:
                 trigger_type = "Points"
+            if os.getenv('TDM_DOCKER'):
+                with open('healthcheck.timestamp', 'w') as f:
+                  f.write(str(int(next_trigger.timestamp())))
             logger.log(
                 CALL,
                 (
@@ -1212,6 +1226,7 @@ class Twitch:
         if drop is not None and drop.can_earn(self.watching_channel.get_with_default(None)):
             # the received payload is for the drop we expected
             drop.update_minutes(message["data"]["current_progress_min"])
+            drop.display()
 
     @task_wrapper
     async def process_notifications(self, user_id: int, message: JsonType):
@@ -1300,6 +1315,10 @@ class Twitch:
         session_timeout = timedelta(seconds=session.timeout.total or 0)
         backoff = ExponentialBackoff(maximum=3*60)
         for delay in backoff:
+            if os.getenv('TDM_DOCKER'):
+              if delay == 180:
+                with open('healthcheck.connectionerror', 'w') as f:
+                  f.write('Container is Unhealthy')
             if self.gui.close_requested:
                 raise ExitRequest()
             elif (
