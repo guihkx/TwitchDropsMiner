@@ -659,16 +659,18 @@ class Twitch:
                 next_hour = datetime.now(timezone.utc) + timedelta(hours=1)
                 # sorted_campaigns: list[DropsCampaign] = list(self.inventory)
                 sorted_campaigns: list[DropsCampaign] = self.inventory
-                if not priority_only:
-                    if priority_mode is PriorityMode.ENDING_SOONEST:
-                        sorted_campaigns.sort(key=lambda c: c.ends_at)
-                    elif priority_mode is PriorityMode.LOW_AVBL_FIRST:
-                        sorted_campaigns.sort(key=lambda c: c.availability)
-                sorted_campaigns.sort(
-                    key=lambda c: (
-                        priority.index(c.game.name) if c.game.name in priority else MAX_INT
-                    )
-                )
+                # Determine the primary sorting key based on priority mode
+                if priority_mode is PriorityMode.ENDING_SOONEST:
+                    primary_key = lambda c: (c.ends_at, priority.index(c.game.name) if c.game.name in priority else MAX_INT)
+                elif priority_mode is PriorityMode.LOW_AVBL_FIRST:
+                    primary_key = lambda c: (c.availability, priority.index(c.game.name) if c.game.name in priority else MAX_INT)
+                else:
+                    primary_key = lambda c: (priority.index(c.game.name) if c.game.name in priority else MAX_INT,)
+                # Sort the campaigns with the appropriate key
+                sorted_campaigns.sort(key=primary_key)
+                # If in priority-only mode, we don't need to sort by primary_key
+                if priority_only:
+                    sorted_campaigns.sort(key=lambda c: priority.index(c.game.name) if c.game.name in priority else MAX_INT)
                 for campaign in sorted_campaigns:
                     game: Game = campaign.game
                     if (
@@ -680,7 +682,7 @@ class Twitch:
                         # and can be progressed within the next hour
                         and campaign.can_earn_within(next_hour)
                     ):
-                        # non-excluded games with no priority are placed last, below priority ones
+                        # Add the game to the wanted list
                         self.wanted_games.append(game)
                 full_cleanup = True
                 self.restart_watching()
