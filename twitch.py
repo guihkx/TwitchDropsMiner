@@ -654,7 +654,6 @@ class Twitch:
                 exclude = self.settings.exclude
                 priority = self.settings.priority
                 priority_mode = self.settings.priority_mode
-                priority_only = priority_mode is PriorityMode.PRIORITY_ONLY
                 unlinked_campaigns = self.settings.unlinked_campaigns
                 next_hour = datetime.now(timezone.utc) + timedelta(hours=1)
                 # sorted_campaigns: list[DropsCampaign] = list(self.inventory)
@@ -665,12 +664,9 @@ class Twitch:
                 elif priority_mode is PriorityMode.LOW_AVBL_FIRST:
                     primary_key = lambda c: (c.availability, priority.index(c.game.name) if c.game.name in priority else MAX_INT)
                 else:
-                    primary_key = lambda c: (priority.index(c.game.name) if c.game.name in priority else MAX_INT,)
+                    primary_key = lambda c: (priority.index(c.game.name) if c.game.name in priority else MAX_INT)
                 # Sort the campaigns with the appropriate key
                 sorted_campaigns.sort(key=primary_key)
-                # If in priority-only mode, we don't need to sort by primary_key
-                if priority_only:
-                    sorted_campaigns.sort(key=lambda c: priority.index(c.game.name) if c.game.name in priority else MAX_INT)
                 for campaign in sorted_campaigns:
                     game: Game = campaign.game
                     if (
