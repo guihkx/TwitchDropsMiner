@@ -43,7 +43,7 @@ You can use pre-built Docker images to run Twitch Drops Miner:
 
    Configure the container with environment variables to customize its behavior:
 
-   - **Allow Unlinked Campaigns:** Set the `UNLINKED_CAMPAIGNS` environment variable to `0` to disable mining drops from campaigns that are not linked to your account. By default, this is set to `1` (enabled). Note that even when unlinked campaigns are enabled, the application will still consider your priority list, so ensure the desired game is included in your priority list.
+   - **Allow Unlinked Campaigns:** Set the `UNLINKED_CAMPAIGNS` environment variable to `1` to ENABLE mining drops from campaigns that are not linked to your account. By default, this is set to `0` (disabled). Note that even when unlinked campaigns are enabled, the application will still consider your priority list, so ensure the desired game is included in your priority list.
 
    - **Priority Mode:** Set the `PRIORITY_MODE` environment variable to one of the following values to determine how the miner prioritizes campaigns:
      - `0`: **Use the priority list directly.** Campaigns are mined in the exact order they appear in the priority list, without additional prioritization.

@@ -604,6 +604,7 @@ class Twitch:
         • Selecting a stream to watch, and watching it
         • Changing the stream that's being watched if necessary
         """
+        self.settings.save(force=True)
         self.gui.start()
         auth_state = await self.get_auth()
         await self.websocket.start()

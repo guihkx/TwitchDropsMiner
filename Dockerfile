@@ -62,9 +62,9 @@ COPY --from=build /usr/local/bin /usr/local/bin
 COPY --from=build /usr/local/lib /usr/local/lib
 
 # Environment variables
-ENV UNLINKED_CAMPAIGNS=1 \
-    PRIORITY_MODE=2 \
-    TDM_DOCKER=true
+ENV UNLINKED_CAMPAIGNS=0
+ENV PRIORITY_MODE=2
+ENV TDM_DOCKER=true
 
 # Set the entrypoint and default command
 ENTRYPOINT ["./docker_entrypoint.sh"]
