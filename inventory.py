@@ -271,7 +271,7 @@ class TimedDrop(BaseDrop):
         else:
             self.current_minutes = self.required_minutes
         self._on_minutes_changed()
-        #self.display()
+        self.display()
 
     def display(self, *, countdown: bool = True, subone: bool = False):
         self._manager.display_drop(self, countdown=countdown, subone=subone)
@@ -280,7 +280,7 @@ class TimedDrop(BaseDrop):
         if self.current_minutes < self.required_minutes:
             self.current_minutes += 1
             self._on_minutes_changed()
-        #self.display()
+        self.display()
 
 
 class DropsCampaign:

@@ -918,7 +918,6 @@ class Twitch:
                     drop = self._drops.get(drop_data["dropID"])
                     if drop is not None and drop.can_earn(channel):
                         drop.update_minutes(drop_data["currentMinutesWatched"])
-                        drop.display()
                         drop_text = (
                             f"{drop.name} ({drop.campaign.game}, "
                             f"{drop.current_minutes}/{drop.required_minutes})"
@@ -933,7 +932,6 @@ class Twitch:
                         current_seconds = CurrentSeconds.get_current_seconds()
                         if current_seconds < 1:
                             drop.bump_minutes()
-                            drop.display()
                             drop_text = (
                                 f"{drop.name} ({drop.campaign.game}, "
                                 f"{drop.current_minutes}/{drop.required_minutes})"
@@ -1225,7 +1223,6 @@ class Twitch:
         if drop is not None and drop.can_earn(self.watching_channel.get_with_default(None)):
             # the received payload is for the drop we expected
             drop.update_minutes(message["data"]["current_progress_min"])
-            drop.display()
 
     @task_wrapper
     async def process_notifications(self, user_id: int, message: JsonType):
