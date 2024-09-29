@@ -1310,11 +1310,13 @@ class Twitch:
         logger.debug(f"Request: ({method=}, {url=}, {kwargs=})")
         session_timeout = timedelta(seconds=session.timeout.total or 0)
         backoff = ExponentialBackoff(maximum=3*60)
+        # Add a flag to track whether the retry message has already been logged
+        retry_message_logged = False
         for delay in backoff:
             if os.getenv('TDM_DOCKER'):
-              if delay == 180:
-                with open('healthcheck.connectionerror', 'w') as f:
-                  f.write('Container is Unhealthy')
+                if delay == 180:
+                    with open('healthcheck.connectionerror', 'w') as f:
+                        f.write('Container is Unhealthy')
             if self.gui.close_requested:
                 raise ExitRequest()
             elif (
@@ -1330,6 +1332,8 @@ class Twitch:
                 )
                 assert response is not None
                 logger.debug(f"Response: {response.status}: {response}")
+                # Reset the retry message flag on successful connection
+                retry_message_logged = False
                 if response.status < 500:
                     # pre-read the response to avoid getting errors outside of the context manager
                     raw_response = await response.read()  # noqa
@@ -1343,9 +1347,10 @@ class Twitch:
                 aiohttp.ClientConnectionError, asyncio.TimeoutError, aiohttp.ClientPayloadError
             ):
                 # connection problems, retry
-                if backoff.steps > 1:
-                    # just so that quick retries that sometimes happen, aren't shown
+                if backoff.steps > 1 and not retry_message_logged:
+                    # Log the retry message only once per retry sequence
                     self.print(_("error", "no_connection").format(seconds=round(delay)))
+                    retry_message_logged = True  # Set flag to prevent duplicate logging
             finally:
                 if response is not None:
                     response.release()
