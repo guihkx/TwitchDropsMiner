@@ -946,8 +946,8 @@ class Twitch:
 
     @task_wrapper(critical=True)
     async def _maintenance_task(self) -> None:
-        claim_period = timedelta(minutes=30)
-        max_period = timedelta(hours=1)
+        claim_period = timedelta(minutes=15)
+        max_period = timedelta(minutes=30)
         now = datetime.now(timezone.utc)
         next_period = now + max_period
         while True:
