@@ -169,6 +169,9 @@ if __name__ == "__main__":
             client.prevent_close()
             client.print("Fatal error encountered:\n")
             client.print(traceback.format_exc())
+            if os.getenv('TDM_DOCKER'):
+                  with open('healthcheck.exitstate', 'w') as f:
+                    f.write('Container is Unhealthy')
         finally:
             if sys.platform == "linux":
                 loop.remove_signal_handler(signal.SIGINT)

@@ -33,7 +33,7 @@ check_health_file() {
 
 # Check the health status in both specified files
 check_health_file "$connectionerror_file" "Connection error"
-check_health_file "$exitstate_file" "Exit state issue"
+check_health_file "$exitstate_file" "Fatal error"
 
 # Check if the timestamp file exists and is readable
 if [[ ! -r "$timestamp_file" ]]; then
