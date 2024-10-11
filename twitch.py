@@ -424,7 +424,6 @@ class _AuthState:
 class Twitch:
     def __init__(self, settings: Settings):
         self.settings: Settings = settings
-        self.is_unhealthy = False
         # State management
         self._state: State = State.IDLE
         self._state_change = asyncio.Event()
@@ -495,9 +494,6 @@ class Twitch:
         if self._mnt_task is not None:
             self._mnt_task.cancel()
             self._mnt_task = None
-        if self.is_unhealthy and os.getenv('TDM_DOCKER'):
-            with open('healthcheck.exitstate', 'w') as f:
-                f.write('Container is Unhealthy')
         # stop websocket, close session and save cookies
         await self.websocket.stop(clear_topics=True)
         if self._session is not None:
@@ -595,7 +591,6 @@ class Twitch:
             except ReloadRequest:
                 await self.shutdown()
             except ExitRequest:
-                self.is_unhealthy = True
                 break
             except aiohttp.ContentTypeError as exc:
                 raise RequestException(_("login", "unexpected_content")) from exc
@@ -874,6 +869,9 @@ class Twitch:
             elif self._state is State.EXIT:
                 self.gui.tray.change_icon("pickaxe")
                 self.gui.status.update(_("gui", "status", "exiting"))
+                if os.getenv('TDM_DOCKER'):
+                  with open('healthcheck.exitstate', 'w') as f:
+                    f.write('Container is Unhealthy')
                 # we've been requested to exit the application
                 break
             await self._state_change.wait()
