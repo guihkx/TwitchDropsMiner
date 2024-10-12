@@ -869,9 +869,6 @@ class Twitch:
             elif self._state is State.EXIT:
                 self.gui.tray.change_icon("pickaxe")
                 self.gui.status.update(_("gui", "status", "exiting"))
-                if os.getenv('TDM_DOCKER'):
-                  with open('healthcheck.exitstate', 'w') as f:
-                    f.write('Container is Unhealthy')
                 # we've been requested to exit the application
                 break
             await self._state_change.wait()
