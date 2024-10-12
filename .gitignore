@@ -21,7 +21,8 @@ __pycache__
 pipfile
 pipfile.lock
 settings.json
-healthcheck.timestamp
+healthcheck.exitstate
+healthcheck.connectionerror
 /lang/English.json
 # AppImage
 /AppDir

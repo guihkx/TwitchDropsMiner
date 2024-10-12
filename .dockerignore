@@ -33,7 +33,6 @@ __pycache__/
 # Ignore configuration and script files
 .gitignore
 settings.json
-healthcheck.timestamp
 healthcheck.exitstate
 healthcheck.connectionerror
 README.md
