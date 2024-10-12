@@ -660,9 +660,9 @@ class Twitch:
                 sorted_campaigns: list[DropsCampaign] = self.inventory
                 # Determine the primary sorting key based on priority mode
                 if priority_mode is PriorityMode.ENDING_SOONEST:
-                    primary_key = lambda c: (c.ends_at, priority.index(c.game.name) if c.game.name in priority else MAX_INT)
+                    primary_key = lambda c: (c.ends_at, MAX_INT)
                 elif priority_mode is PriorityMode.LOW_AVBL_FIRST:
-                    primary_key = lambda c: (c.availability, priority.index(c.game.name) if c.game.name in priority else MAX_INT)
+                    primary_key = lambda c: (c.availability, MAX_INT)
                 else:
                     primary_key = lambda c: (priority.index(c.game.name) if c.game.name in priority else MAX_INT)
                 # Sort the campaigns with the appropriate key
