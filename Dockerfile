@@ -63,7 +63,7 @@ COPY --from=build /usr/local/lib /usr/local/lib
 
 # Environment variables
 ENV UNLINKED_CAMPAIGNS=0
-ENV PRIORITY_MODE=2
+ENV PRIORITY_MODE=1
 ENV TDM_DOCKER=true
 
 # Set the entrypoint and default command

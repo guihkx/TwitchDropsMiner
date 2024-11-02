@@ -19,54 +19,108 @@ Every several seconds, the application pretends to watch a particular stream by 
 - Login session is saved in a cookies file, so you don't need to login every time.
 - Mining is automatically started as new campaigns appear, and stopped when the last available drops have been mined.
 
-### Docker Usage:
+<details>
+  <summary><h3>Docker Usage</h3></summary>
 
-You can use pre-built Docker images to run Twitch Drops Miner:
+  You can use pre-built Docker images to run Twitch Drops Miner:
 
-1. **Pull the Docker Image:**
+  1. **Pull the Docker Image:**
 
-   You can choose from two Docker image repositories:
+     You can choose from two Docker image repositories:
 
-   - From Docker Hub:
+     - From Docker Hub:
+
+       ```sh
+       journeyover/twitchdropsminer:main
+       ```
+
+     - From GitHub Container Registry:
+
+       ```sh
+       ghcr.io/journeydocker/twitchdropsminer:main
+       ```
+
+     ### Docker Image Tags
+
+     The `TwitchDropsMiner` Docker image is available in three primary tag formats, each suited to different use cases:
+
+     - **`main` (Continuous Development)**
+       - **Description**: The `main` tag is automatically updated to reflect the latest commit on the main branch in GitHub. This image corresponds to the latest development state of `TwitchDropsMiner`.
+       - **Usage Consideration**: This tag is not recommended for production use, as it changes frequently and may include untested or unstable updates. Use `main` only if you're contributing to development or need access to the latest features and fixes.
+       - **Frequency**: Updated with each new commit to the main branch, making this a rapidly evolving image.
+
+       > **Note**: Pulling the `main` tag may introduce breaking changes or instability, as it represents ongoing development work.
+
+     - **`latest` (Latest Stable Release)**
+       - **Description**: This tag points to the most recent stable release of `TwitchDropsMiner`. Unlike `main`, the `latest` tag is only updated with stable, fully-tested versions.
+       - **Usage Recommendation**: Use the `latest` tag if you want the most current stable build without specifying a particular version. Ideal for production environments where stability is critical.
+
+       > **Note**: Currently, there is no `latest` tag available. Please check back for updates on the availability of this tag.
+
+     - **`A.B.C.D` (Versioned Release)**
+       - **Description**: Versioned tags, such as `A.B.C.D`, are frozen at a specific release version and will not receive updates after publication. Each versioned tag corresponds directly to a released version of `TwitchDropsMiner` on GitHub.
+       - **Usage Recommendation**: Use versioned tags when you need consistency and want to avoid updates that might alter functionality. These tags are ideal for production environments requiring fixed versions.
+
+       > **Note**: Currently, there are no versioned tags (e.g., `A.B.C.D`) available. When they are published, each will remain fixed, ensuring a stable and unchanging image for users needing version control.
+
+  2. **Run the Docker Container:**
+
+     Configure the container with environment variables to customize its behavior:
+
+     - **Allow Unlinked Campaigns:** Set the `UNLINKED_CAMPAIGNS` environment variable to `1` to ENABLE mining drops from campaigns that are not linked to your account. By default, this is set to `0` (disabled). Note that even when unlinked campaigns are enabled, the application will still consider your priority list, so ensure the desired game is included in your priority list.
+
+     - **Priority Mode:** Set the `PRIORITY_MODE` environment variable to one of the following values to determine how the miner prioritizes campaigns:
+       - `0`: **Use the priority list directly.** Campaigns are mined in the exact order they appear in the priority list, without additional prioritization.
+       - `1` (default): **Prioritize based on time-to-end.** Campaigns in the priority list are mined based on how soon they are ending, with those nearing their end being prioritized higher.
+       - `2`: **Optimize by time ratio.** Campaigns are prioritized according to the ratio of elapsed time to remaining time, aiming to mine campaigns that are ending soonest more accurately.
+
+     Example of running the container with these environment variables:
 
      ```sh
-     docker pull journeyover/twitchdropsminer
+     docker run -itd \
+       --init \
+       --pull=always \
+       --restart=always \
+       -e UNLINKED_CAMPAIGNS=1 \
+       -e PRIORITY_MODE=1 \
+       -v ./cookies.jar:/TwitchDropsMiner/cookies.jar \
+       -v ./settings.json:/TwitchDropsMiner/settings.json \
+       -v /etc/localtime:/etc/localtime:ro \
+       --name twitch_drops_miner \
+       ghcr.io/journeyover/twitchdropsminer
      ```
 
-   - From GitHub Container Registry:
+     ### Docker Compose Example
+
+     To simplify running `TwitchDropsMiner`, you can use Docker Compose with the following configuration. Create a `docker-compose.yml` file in your working directory:
+
+     ```yaml
+     version: '3.8'
+
+     services:
+       twitchdropsminer:
+         image: ghcr.io/journeyover/twitchdropsminer:latest
+         container_name: twitch_drops_miner
+         restart: always
+         environment:
+           UNLINKED_CAMPAIGNS: "0"   # Set to "1" to enable unlinked campaigns mining
+           PRIORITY_MODE: "1"        # Set priority mode (0, 1, or 2)
+         volumes:
+           - ./cookies.jar:/TwitchDropsMiner/cookies.jar
+           - ./settings.json:/TwitchDropsMiner/settings.json
+           - /etc/localtime:/etc/localtime:ro
+     ```
+
+     After creating the `docker-compose.yml` file, start the container with:
 
      ```sh
-     docker pull ghcr.io/journeydocker/twitchdropsminer
+     docker-compose up -d
      ```
 
-2. **Run the Docker Container:**
+  - **Docker Considerations:** If you are running the application in Docker, remember to shut down the container before making changes directly to the `settings.json` file.
 
-   Configure the container with environment variables to customize its behavior:
+</details>
 
-   - **Allow Unlinked Campaigns:** Set the `UNLINKED_CAMPAIGNS` environment variable to `1` to ENABLE mining drops from campaigns that are not linked to your account. By default, this is set to `0` (disabled). Note that even when unlinked campaigns are enabled, the application will still consider your priority list, so ensure the desired game is included in your priority list.
-
-   - **Priority Mode:** Set the `PRIORITY_MODE` environment variable to one of the following values to determine how the miner prioritizes campaigns:
-     - `0`: **Use the priority list directly.** Campaigns are mined in the exact order they appear in the priority list, without additional prioritization.
-     - `1`: **Prioritize based on time-to-end.** Campaigns in the priority list are mined based on how soon they are ending, with those nearing their end being prioritized higher.
-     - `2` (default): **Optimize by time ratio.** Campaigns are prioritized according to the ratio of elapsed time to remaining time, aiming to mine campaigns that are ending soonest more accurately.
-
-   Example of running the container with these environment variables:
-
-   ```sh
-    docker run -itd \
-      --init \
-      --pull=always \
-      --restart=always \
-      -e UNLINKED_CAMPAIGNS=Value \
-      -e PRIORITY_MODE=Value \
-      -v ./cookies.jar:/TwitchDropsMiner/cookies.jar \
-      -v ./settings.json:/TwitchDropsMiner/settings.json \
-      -v /etc/localtime:/etc/localtime:ro \
-      --name twitch_drops_miner \
-      ghcr.io/journeyover/twitchdropsminer
-   ```
-
-- **Docker Considerations:** If you are running the application in Docker, remember to shut down the container before making changes directly to the `settings.json` file.
 
 ### Usage:
 
