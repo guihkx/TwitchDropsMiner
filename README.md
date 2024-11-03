@@ -20,7 +20,9 @@ Every several seconds, the application pretends to watch a particular stream by 
 - Mining is automatically started as new campaigns appear, and stopped when the last available drops have been mined.
 
 <details>
-  <summary><h3>Docker Usage</h3></summary>
+  <summary><h3>Usage (click for dropdown)</h3></summary>
+
+  ### Docker Usage
 
   You can use pre-built Docker images to run Twitch Drops Miner:
 
@@ -119,15 +121,14 @@ Every several seconds, the application pretends to watch a particular stream by 
 
   - **Docker Considerations:** If you are running the application in Docker, remember to shut down the container before making changes directly to the `settings.json` file.
 
-</details>
+### Manual Usage:
 
-
-### Usage:
-
-- Download and unzip [the latest release](https://github.com/JourneyDocker/TwitchDropsMiner/releases) - it's recommended to keep it in the folder it comes in.
+- Download and unzip [the latest release](https://github.com/JourneyDocker/TwitchDropsMiner/releases).
 - Run it and login/connect the miner to your Twitch account by using the in-app login form.
 - After a successful login, the app should fetch a list of all available campaigns and games you can mine drops for - you can then select and add games of choice to the Priority List available on the Settings tab, and then press on the `Reload` button to start processing. It will fetch a list of all applicable streams it can watch, and start mining right away. You can also manually switch to a different channel as needed.
 - Make sure to link your Twitch account to game accounts on the [campaigns page](https://www.twitch.tv/drops/campaigns), to enable more games to be mined.
+
+</details>
 
 ### Pictures:
 
