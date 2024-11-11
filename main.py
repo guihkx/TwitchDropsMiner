@@ -87,6 +87,7 @@ if __name__ == "__main__":
     # NOTE: parser output is shown via message box
     # we also need a dummy invisible window for the parser
     root = tk.Tk()
+    root.tk.call("tk", "scaling", 2.0)
     root.overrideredirect(True)
     root.withdraw()
     set_root_icon(root, resource_path("icons/pickaxe.ico"))
