@@ -87,6 +87,12 @@ if __name__ == "__main__":
     # NOTE: parser output is shown via message box
     # we also need a dummy invisible window for the parser
     root = tk.Tk()
+    if sys.platform == "win32":
+        from ctypes import windll
+        windll.shcore.SetProcessDpiAwareness(1)
+        scale_factor = windll.shcore.GetScaleFactorForDevice(0)
+        root.tk.call("tk", "scaling", scale_factor / 75)
+        messagebox.showinfo("Scaling", f"Tkinter scaling set to {scale_factor / 75}")
     root.overrideredirect(True)
     root.withdraw()
     set_root_icon(root, resource_path("icons/pickaxe.ico"))
