@@ -15,6 +15,7 @@ if __name__ == "__main__":
     import warnings
     import traceback
     import tkinter as tk
+    import tkinter.font
     from tkinter import messagebox
     from typing import IO, NoReturn
 
@@ -87,12 +88,14 @@ if __name__ == "__main__":
     # NOTE: parser output is shown via message box
     # we also need a dummy invisible window for the parser
     root = tk.Tk()
-    if sys.platform == "win32":
-        from ctypes import windll
-        windll.shcore.SetProcessDpiAwareness(1)
-        scale_factor = windll.shcore.GetScaleFactorForDevice(0)
-        root.tk.call("tk", "scaling", scale_factor / 75)
-        messagebox.showinfo("Scaling", f"Tkinter scaling set to {scale_factor / 75}")
+    scaling = root.tk.call("tk", "scaling")
+    if scaling > 1.4:
+        for name in tkinter.font.names(root):
+            font = tkinter.font.Font(root=root, name=name, exists=True)
+            size = int(font['size'])
+            if size < 0:
+                font['size'] = round(-0.75 * size)
+                messagebox.showinfo("Scaling", f"Tkinter scaling set to {scale_factor / 75}")
     root.overrideredirect(True)
     root.withdraw()
     set_root_icon(root, resource_path("icons/pickaxe.ico"))
