@@ -10,7 +10,6 @@ RUN apt-get update && \
     gir1.2-gtk-3.0 \
     gir1.2-ayatanaappindicator3-0.1 \
     libcairo2-dev \
-    tk-dev \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
@@ -42,14 +41,7 @@ RUN apt-get update && \
     apt-get install -y --no-install-recommends \
     nano \
     libx11-6 \
-    libxau6 \
-    libxdmcp6 \
-    libxext6 \
-    libxft2 \
-    libxrender1 \
-    libxkbcommon0 \
-    libxkbcommon-x11-0 \
-    libtk8.6 \
+    tk \
     xvfb \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
@@ -58,8 +50,8 @@ RUN apt-get update && \
 COPY --from=build /TwitchDropsMiner /TwitchDropsMiner
 
 # Copy only the necessary files to the final image
+COPY --from=build /usr/local/lib/python3.13/site-packages /usr/local/lib/python3.13/site-packages
 COPY --from=build /usr/local/bin /usr/local/bin
-COPY --from=build /usr/local/lib /usr/local/lib
 
 # Environment variables
 ENV UNLINKED_CAMPAIGNS=0
