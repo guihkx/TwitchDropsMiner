@@ -596,10 +596,6 @@ class Twitch:
                 raise RequestException(_("login", "unexpected_content")) from exc
 
     async def _run(self):
-        if os.getenv('TDM_DOCKER'):
-          for filename in ['healthcheck.exitstate', 'healthcheck.connectionerror']:
-            with open(filename, 'w') as f:
-              f.write('Container is Healthy')
         """
         Main method that runs the whole client.
 

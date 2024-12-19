@@ -6,6 +6,11 @@ from datetime import datetime
 import os
 
 if __name__ == "__main__":
+    if os.getenv('TDM_DOCKER'):
+      for filename in ['healthcheck.exitstate', 'healthcheck.connectionerror']:
+        with open(filename, 'w') as f:
+          f.write('Container is Healthy')
+
     print(f"{datetime.now().strftime('%Y-%m-%d %X')}: Starting: Twitch Drops Miner")
     freeze_support()
     import io
