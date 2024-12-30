@@ -11,7 +11,7 @@ on:
   workflow_dispatch:
 
 env:
-  PYTHON_VERSION: '3.13.1'
+  PYTHON_VERSION: '3.10'
 
 jobs:
   validate:
@@ -20,10 +20,10 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@main
+        uses: actions/checkout@v4
 
       - name: Set up Python
-        uses: actions/setup-python@main
+        uses: actions/setup-python@v5
         with:
           python-version: ${{env.PYTHON_VERSION}}
 
@@ -107,7 +107,7 @@ jobs:
 
   linux-pyinstaller:
     name: Linux (PyInstaller)
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-20.04
     needs:
       - validate
 
@@ -124,8 +124,9 @@ jobs:
         run: |
           sed -ri "s/^__version__\s*=\s*\"[^\"]+/\0.${{steps.vars.outputs.sha_short}}/" version.py
 
+      # NOTE: We're only use a custom version of Python here because truststore requires at least Python 3.10, but Ubuntu 20.04 has Python 3.8.
       - name: Set up Python
-        uses: actions/setup-python@main
+        uses: actions/setup-python@v5
         with:
           python-version: ${{env.PYTHON_VERSION}}
 
@@ -143,6 +144,7 @@ jobs:
         run: |
           python3 -m pip install pyinstaller
 
+      # NOTE: Remove this step if/once libxft gets updated to 2.3.5 or newer on Ubuntu 20.04, which currently has 2.3.3.
       - name: Build a recent version of libXft
         run: |
           mkdir -p /tmp/libXft
@@ -178,7 +180,7 @@ jobs:
 
   linux-appimage:
     name: Linux (AppImage)
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-22.04
     needs:
       - validate
 
