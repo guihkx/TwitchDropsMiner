@@ -26,7 +26,6 @@ log.txt
 lock.file
 
 # Ignore Python-related files
-build.spec
 .mypy_cache/
 __pycache__/
 
@@ -43,8 +42,11 @@ manual.txt
 # Ignore specific development and build scripts
 run_dev.bat
 build.bat
+build.sh
+build.spec
 pack.bat
 setup_env.bat
+setup_env.sh
 
 # Docker-specific files
 Dockerfile
