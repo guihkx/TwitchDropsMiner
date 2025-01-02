@@ -112,7 +112,7 @@ exe = EXE(
     a.datas,
     [],
     upx=False,
-    debug=False,
+    debug="imports,bootloader",
     strip=False,
     console=False,
     upx_exclude=[],
