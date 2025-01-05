@@ -1417,7 +1417,7 @@ class Twitch:
             else:
                 return orig_response
             await asyncio.sleep(delay)
-        raise GQLException("Retry loop was broken")
+        raise RuntimeError("Retry loop was broken")
 
     def _merge_data(self, primary_data: JsonType, secondary_data: JsonType) -> JsonType:
         merged = {}
