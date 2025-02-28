@@ -3,6 +3,7 @@ from __future__ import annotations
 import json
 import asyncio
 import logging
+import os
 from time import time
 from contextlib import suppress
 from typing import Any, Literal, TYPE_CHECKING
@@ -129,9 +130,13 @@ class Websocket:
                 aiohttp.ClientResponseError,
                 aiohttp.ClientConnectionError,
             ):
+                rounded_delay = round(delay)
                 ws_logger.info(
-                    f"Websocket[{self._idx}] connection problem (sleep: {round(delay)}s)"
+                    f"Websocket[{self._idx}] connection problem (sleep: {rounded_delay}s)"
                 )
+                if os.getenv('TDM_DOCKER') and rounded_delay == 180:
+                    with open('/tmp/healthcheck.websocketerror', 'w') as f:
+                        f.write('Container is Unhealthy')
                 await asyncio.sleep(delay)
             except RuntimeError:
                 ws_logger.warning(

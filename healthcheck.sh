@@ -1,10 +1,14 @@
 #!/bin/bash
 
-# Define the variables for file paths
-health_files=("./healthcheck.connectionerror" "./healthcheck.exitstate")
-reasons=("Connection error" "Fatal error")
+# Define the variables for file paths and reasons
+health_files=(
+    "/tmp/healthcheck.connectionerror"
+    "/tmp/healthcheck.websocketerror"
+    "/tmp/healthcheck.exitstate"
+)
+reasons=("HTTP Connection Error" "Websocket Connection Error" "Fatal Error")
 status=0  # Default status as healthy (exit code 0)
-unhealthy_reason=""  # Variable to hold the reason for being unhealthy
+unhealthy_reason="" # Variable to hold the reason for being unhealthy
 
 # Function to check the health status of each file
 check_health_file() {
@@ -26,7 +30,7 @@ check_health_file() {
   # Check if the file marks the container as unhealthy
   if [[ "$content" == "Container is Unhealthy" ]]; then
     status=1  # Mark the status as unhealthy
-    unhealthy_reason="$reason"  # Set the reason for unhealthiness
+    unhealthy_reason+="$reason, "  # Set the reason for unhealthiness
   fi
 }
 
@@ -39,6 +43,7 @@ done
 if [[ $status -eq 0 ]]; then
   echo "Container is healthy"
 else
+  unhealthy_reason=${unhealthy_reason%, }
   echo "Container is unhealthy due to: $unhealthy_reason"
 fi
 

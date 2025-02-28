@@ -24,8 +24,6 @@ pipfile.lock
 pdm.lock
 pyproject.toml
 settings.json
-healthcheck.exitstate
-healthcheck.connectionerror
 /lang/English.json
 # AppImage
 /AppDir

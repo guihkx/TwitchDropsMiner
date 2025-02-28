@@ -7,8 +7,8 @@ import os
 
 if __name__ == "__main__":
     if os.getenv('TDM_DOCKER'):
-      for filename in ['healthcheck.exitstate', 'healthcheck.connectionerror']:
-        with open(filename, 'w') as f:
+      for filename in ['healthcheck.exitstate', 'healthcheck.connectionerror', 'healthcheck.websocketerror']:
+        with open(f'/tmp/{filename}', 'w') as f:
           f.write('Container is Healthy')
 
     print(f"{datetime.now().strftime('%Y-%m-%d %X')}: Starting: Twitch Drops Miner")
@@ -170,7 +170,7 @@ if __name__ == "__main__":
             client.print("Fatal error encountered:\n")
             client.print(traceback.format_exc())
             if os.getenv('TDM_DOCKER'):
-                  with open('healthcheck.exitstate', 'w') as f:
+                  with open('/tmp/healthcheck.exitstate', 'w') as f:
                     f.write('Container is Unhealthy')
         finally:
             if sys.platform == "linux":

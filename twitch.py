@@ -1311,7 +1311,7 @@ class Twitch:
         for delay in backoff:
             if os.getenv('TDM_DOCKER'):
               if delay == 180:
-                with open('healthcheck.connectionerror', 'w') as f:
+                with open('/tmp/healthcheck.connectionerror', 'w') as f:
                   f.write('Container is Unhealthy')
             if self.gui.close_requested:
                 raise ExitRequest()

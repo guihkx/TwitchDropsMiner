@@ -33,8 +33,6 @@ __pycache__/
 .gitignore
 renovate.json
 settings.json
-healthcheck.exitstate
-healthcheck.connectionerror
 README.md
 LICENSE
 manual.txt
