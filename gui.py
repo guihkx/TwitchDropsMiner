@@ -1413,7 +1413,7 @@ class InventoryOverview:
             takefocus=False,
         ).grid(column=1, row=2, sticky="w", padx=4)
         # Linking status
-        if campaign.linked:
+        if campaign.eligible:
             link_kwargs = {
                 "style": '',
                 "text": _("gui", "inventory", "status", "linked"),
