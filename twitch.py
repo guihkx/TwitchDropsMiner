@@ -674,8 +674,8 @@ class Twitch:
                         game not in self.wanted_games  # isn't already there
                         # and isn't excluded by list or priority mode
                         and (game.name not in exclude and game.name in priority)
-                        # and user wants unlinked games or the game is linked
-                        and (unlinked_campaigns or campaign.linked)
+                        # and is eligible for earning drops
+                        and campaign.eligible
                         # and can be progressed within the next hour
                         and campaign.can_earn_within(next_hour)
                     ):
