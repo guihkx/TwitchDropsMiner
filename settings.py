@@ -68,10 +68,8 @@ class Settings:
     def __get_settings_from_env__(self):
         if os.environ.get('PRIORITY_MODE') in ['0', '1', '2']:
             self._settings["priority_mode"] = PriorityMode(int(os.environ.get('PRIORITY_MODE')))
-        if os.environ.get('UNLINKED_CAMPAIGNS') == '1':
-            self._settings["unlinked_campaigns"] = True
-        else:
-            self._settings["unlinked_campaigns"] = False
+        if 'UNLINKED_CAMPAIGNS' in os.environ:
+            self._settings["unlinked_campaigns"] = os.environ.get('UNLINKED_CAMPAIGNS') == '1'
 
     # default logic of reading settings is to check args first, then the settings file
     def __getattr__(self, name: str, /) -> Any:

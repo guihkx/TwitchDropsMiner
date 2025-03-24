@@ -665,7 +665,6 @@ class Twitch:
                 exclude = self.settings.exclude
                 priority = self.settings.priority
                 priority_mode = self.settings.priority_mode
-                unlinked_campaigns = self.settings.unlinked_campaigns
                 next_hour = datetime.now(timezone.utc) + timedelta(hours=1)
                 # sorted_campaigns: list[DropsCampaign] = list(self.inventory)
                 sorted_campaigns: list[DropsCampaign] = self.inventory

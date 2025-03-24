@@ -311,6 +311,7 @@ class DropsCampaign:
         self.name: str = data["name"]
         self.game: Game = Game(data["game"])
         self.linked: bool = data["self"]["isAccountConnected"]
+        self.unlinked: bool = data["self"]["isAccountConnected"] is False
         self.link_url: str = data["accountLinkURL"]
         # campaign's image actually comes from the game object
         # we use regex to get rid of the dimensions part (ex. ".../game_id-285x380.jpg")
@@ -362,7 +363,7 @@ class DropsCampaign:
     @property
     def eligible(self) -> bool:
         if self._twitch.settings.unlinked_campaigns:
-            return True
+            return self.unlinked or self.linked or self.has_badge_or_emote
         return self.linked or self.has_badge_or_emote
 
     @cached_property
