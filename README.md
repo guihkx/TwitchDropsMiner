@@ -138,9 +138,9 @@ Every several seconds, the application pretends to watch a particular stream by 
 
 ### Notes:
 
-> [!WARNING]  
-> Due to how Twitch handles the drop progression on their side, watching a stream in the browser (or by any other means) on the same account that is actively being used by the miner, will usually cause the miner to misbehave, reporting false progress and getting stuck mining the current drop.  
-> 
+> [!WARNING]
+> Due to how Twitch handles the drop progression on their side, watching a stream in the browser (or by any other means) on the same account that is actively being used by the miner, will usually cause the miner to misbehave, reporting false progress and getting stuck mining the current drop.
+>
 > Using the same account to watch other streams during mining is thus discouraged, in order to avoid any problems arising from it.
 
 > [!CAUTION]
@@ -149,10 +149,10 @@ Every several seconds, the application pretends to watch a particular stream by 
 > [!IMPORTANT]
 > Successfully logging into your Twitch account in the application may cause Twitch to send you a "New Login" notification email. This is normal - you can verify that it comes from your own IP address. The detected browser during the login will be "Chrome", as that's what the miner currently presents itself to the Twitch server.
 
-> [!NOTE]  
+> [!NOTE]
 > The time remaining timer always countdowns a single minute and then stops - it is then restarted only after the application redetermines the remaining time. This "redetermination" can happen at any time Twitch decides to report on the drop's progress, but not later than 20 seconds after the timer reaches zero. The seconds timer is only an approximation and does not represent nor affect actual mining speed. The time variations are due to Twitch sometimes not reporting drop progress at all, or reporting progress for the wrong drop - these cases have all been accounted for in the application though.
 
-> [!NOTE]  
+> [!NOTE]
 > The source code requires Python 3.10 or higher to run.
 
 ### Notes about the Windows build:
@@ -225,7 +225,7 @@ Non-translations related credits should be added to the first section instead.
 -->
 
 | **Contributor**        | **Translation**                                                         |
-|-------------------------|------------------------------------------------------------------------|
+|------------------------|-------------------------------------------------------------------------|
 | @guihkx                | CI script, CI maintenance, Linux builds                                 |
 | @Bamboozul             | Arabic ( العربية )                                                      |
 | @Suz1e                 | Chinese ( 简体中文 ) translation and revisions                           |
@@ -236,13 +236,14 @@ Non-translations related credits should be added to the first section instead.
 | @nwvh                  | Czech ( Čeština )                                                       |
 | @Kjerne                | Danish ( Dansk )                                                        |
 | @roobini-gamer         | French ( Français )                                                     |
+| @Calvineries           | For the French (Français) translation revisions                         |
 | @ThisIsCyreX           | German ( Deutsch )                                                      |
 | @Eriza-Z               | Indonesian                                                              |
 | @casungo               | Italian ( Italiano )                                                    |
 | @ShimadaNanaki         | Japanese ( 日本語 )                                                      |
 | @Patriot99             | Polish ( Polski ) translation and revisions (co-authored with @DevilXD) |
 | @zarigata              | Portuguese ( Português )                                                |
-| @Sergo1217             | Russian ( Русский )                                                     |
+| @Sergo1217             | Russian ( Русский )                                                      |
 | @Shofuu                | Spanish ( Español ) translation and revisions                           |
 | @alikdb                | Turkish ( Türkçe )                                                      |
-| @Nollasko              | Ukrainian ( Українська ) translation and revisions                      |
+| @Nollasko              | Ukrainian ( Українська ) translation and revisions                       |
