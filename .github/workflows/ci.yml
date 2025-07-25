@@ -146,7 +146,7 @@ jobs:
         run: |
           mkdir -p /tmp/libXft
           cd /tmp/libXft
-          curl -L https://xorg.freedesktop.org/releases/individual/lib/libXft-2.3.8.tar.xz -o libXft.tar.xz
+          curl -L https://xorg.freedesktop.org/releases/individual/lib/libXft-2.3.9.tar.xz -o libXft.tar.xz
           tar xvf libXft.tar.xz
           cd libXft-*
           ./configure --prefix=/tmp/libXft --sysconfdir=/etc --disable-static
