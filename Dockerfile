@@ -39,9 +39,10 @@ WORKDIR /TwitchDropsMiner/
 # Install system dependencies
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
+    jwm \
     nano \
-    libx11-6 \
     tk \
+    x11vnc \
     xvfb \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
@@ -54,9 +55,14 @@ COPY --from=build /usr/local/lib/python3.13/site-packages /usr/local/lib/python3
 COPY --from=build /usr/local/bin /usr/local/bin
 
 # Environment variables
+ENV DISPLAY=:1
+ENV VNC_PORT=5900
 ENV UNLINKED_CAMPAIGNS=0
 ENV PRIORITY_MODE=1
 ENV TDM_DOCKER=true
+
+# Expose the VNC port (we'll bind to localhost by default)
+EXPOSE ${VNC_PORT}
 
 # Set the entrypoint and default command
 ENTRYPOINT ["./docker_entrypoint.sh"]
