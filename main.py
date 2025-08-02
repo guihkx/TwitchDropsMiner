@@ -180,7 +180,8 @@ if __name__ == "__main__":
             await client.shutdown()
         if not client.gui.close_requested:
             # user didn't request the closure
-            client.gui.tray.change_icon("error")
+            if pystray.Icon.HAS_MENU:
+                client.gui.tray.change_icon("error")
             client.print(_("status", "terminated"))
             client.gui.status.update(_("gui", "status", "terminated"))
             # notify the user about the closure
