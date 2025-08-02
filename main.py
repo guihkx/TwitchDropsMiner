@@ -54,7 +54,6 @@ if __name__ == "__main__":
         _debug_ws: bool
         _debug_gql: bool
         log: bool
-        tray: bool
         dump: bool
 
         # TODO: replace int with union of literal values once typeshed updates
@@ -97,7 +96,6 @@ if __name__ == "__main__":
     )
     parser.add_argument("--version", action="version", version=f"v{__version__}")
     parser.add_argument("-v", dest="_verbose", action="count", default=0)
-    parser.add_argument("--tray", action="store_true")
     parser.add_argument("--log", action="store_true")
     parser.add_argument("--dump", action="store_true")
     # undocumented debug args
@@ -170,7 +168,6 @@ if __name__ == "__main__":
             await client.shutdown()
         if not client.gui.close_requested:
             # user didn't request the closure
-            client.gui.tray.change_icon("error")
             client.print(_("status", "terminated"))
             client.gui.status.update(_("gui", "status", "terminated"))
             # notify the user about the closure
