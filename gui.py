@@ -810,6 +810,7 @@ class ConsoleOutput:
         stamp = datetime.now().strftime("%X")
         if '\n' in message:
             message = message.replace('\n', f"\n{stamp}: ")
+        print(f"{stamp}: {message}", file=sys.stderr)
         self._text.config(state="normal")
         self._text.insert("end", f"{stamp}: {message}\n")
         self._text.see("end")  # scroll to the newly added line
