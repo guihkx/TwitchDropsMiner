@@ -807,7 +807,7 @@ class ConsoleOutput:
         yscroll.grid(column=1, row=0, sticky="ns")
 
     def print(self, message: str):
-        stamp = datetime.now().strftime("%X")
+        stamp = datetime.now().strftime("%F %X")
         if '\n' in message:
             message = message.replace('\n', f"\n{stamp}: ")
         print(f"{stamp}: {message}", file=sys.stderr)
