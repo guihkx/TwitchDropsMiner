@@ -1,0 +1,7 @@
+**
+!container/entrypoint.sh
+!icons/pickaxe.ico
+!lang/
+!requirements.txt
+!*.py
+

@@ -1,0 +1,63 @@
+FROM python:3.13-alpine3.21
+
+WORKDIR /TDM
+
+COPY . .
+
+RUN set -eux; \
+    \
+    apk add --no-cache --virtual .build-deps \
+        binutils \
+        file; \
+    apk add --no-cache \
+        font-dejavu \
+        font-noto-emoji \
+        font-wqy-zenhei \
+        jwm \
+        tigervnc \
+        tk \
+        # Required for locale handling and X11
+        musl-locales; \
+    \
+    # Install Python dependencies
+    pip --disable-pip-version-check \
+        install \
+        --no-cache-dir \
+        --progress-bar=off \
+        --requirement=requirements.txt \
+        --root-user-action=ignore; \
+    \
+    # Compile Python files
+    python -m compileall .; \
+    \
+    # Strip debug symbols from libraries
+    find /usr/local/lib/python3.*/site-packages \
+        -type f \( -iname '*.so' -o -iname '*.so.*' \) -print0 | \
+        xargs -0 -r file | \
+        grep -F 'not stripped' | \
+        cut -f1 -d: | \
+		sort -V | \
+        xargs -r strip -s -v; \
+    \
+    # Install entrypoint script
+    mv container/entrypoint.sh .; \
+    \
+    # Cleanup build dependencies and files
+    apk del --no-cache .build-deps; \
+    rm -rf \
+        /var/cache/apk/* \
+        requirements.txt \
+        container
+
+# Set environment variables
+ENV LANG=en_US.UTF-8
+ENV DISPLAY=:1
+ENV VNC_PORT=5900
+EXPOSE ${VNC_PORT}
+ENTRYPOINT ["./entrypoint.sh"]
+CMD ["python", "main.py", "-vvv"]
+
+#RUN set -eux; apk add --no-cache font-dejavu font-noto-emoji jwm tk x11vnc xvfb
+#RUN set -eux; apk add --no-cache font-dejavu font-noto-emoji jwm tigervnc tk
+
+# vim: set syntax=dockerfile:

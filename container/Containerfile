@@ -1,0 +1,70 @@
+FROM python:3.13-slim-bookworm
+#FROM python:3.13-alpine3.22
+
+WORKDIR /TDM
+
+COPY . .
+
+RUN set -eux; \
+    \
+    # Install system dependencies
+    apt-get update; \
+    apt-get install -y --no-install-recommends \
+        binutils \
+        file \
+        fonts-dejavu \
+        fonts-noto-color-emoji \
+        fonts-wqy-zenhei \
+        jwm \
+        locales \
+        tigervnc-standalone-server \
+        tk; \
+        # \/ x11vnc + xvfb experiment \/
+        #x11vnc \
+        #xvfb && \
+    \
+    # Install Python dependencies
+    pip --disable-pip-version-check \
+        install \
+        --compile \
+        --no-cache-dir \
+        --progress-bar=off \
+        --requirement=requirements.txt \
+        --root-user-action=ignore; \
+    # Compile Python files
+    python -m compileall .; \
+    \
+    # Strip debug symbols from libraries
+    find /usr/local/lib/python3.*/site-packages \
+        -type f \( -iname '*.so' -o -iname '*.so.*' \) -print0 | \
+        xargs -0 -r file | \
+        grep -F 'not stripped' | \
+        cut -f1 -d: | \
+        sort -V | \
+        xargs -r strip -s -v; \
+    \
+    # Configure locale
+    sed -i '/en_US.UTF-8/s/^# //g' /etc/locale.gen; \
+    locale-gen; \
+    \
+    # Install entrypoint script
+    mv container/entrypoint.sh .; \
+    \
+    # Cleanup system packages and unneeded files
+    apt-get remove -y --purge --auto-remove \
+        binutils \
+        file; \
+    apt-get clean; \
+    rm -rf \
+        /var/lib/apt/lists/* \
+        requirements.txt \
+        container
+
+ENV LANG=en_US.UTF-8
+ENV DISPLAY=:1
+ENV VNC_PORT=5900
+EXPOSE ${VNC_PORT}
+ENTRYPOINT ["./entrypoint.sh"]
+CMD ["python", "main.py", "-vvv"]
+
+# vim: set syntax=dockerfile:
