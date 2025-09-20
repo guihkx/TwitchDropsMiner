@@ -95,7 +95,7 @@ jobs:
         run: |
           $FolderName = 'Twitch Drops Miner'
           New-Item $FolderName -ItemType Directory
-          Copy-Item dist\*.exe $FolderName
+          Copy-Item -Recurse dist\*\* $FolderName
           Copy-Item manual.txt $FolderName
           Compress-Archive -Path $FolderName -DestinationPath Twitch.Drops.Miner.Windows.zip
 
@@ -178,7 +178,7 @@ jobs:
         run: |
           folder='Twitch Drops Miner'
           mkdir "${folder}"
-          cp manual.txt dist/* "${folder}"
+          cp -r manual.txt dist/*/* "${folder}"
           7z a 'Twitch.Drops.Miner.Linux.PyInstaller-${{matrix.arch}}.zip' "${folder}"
 
       - name: Upload build artifact
