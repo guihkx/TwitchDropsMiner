@@ -8,6 +8,8 @@ if __name__ == "__main__":
     freeze_support()
     import io
     import sys
+    import os
+    import time
     import signal
     import asyncio
     import logging
@@ -129,7 +131,12 @@ if __name__ == "__main__":
     del root, parser
 
     # client run
-    async def main():
+    async def main() -> tuple[int, bool]:
+        """
+        Returns (exit_status, restart_flag).
+        restart_flag is True when the app terminated unexpectedly (client.gui.close_requested == False)
+        and we want to fully re-exec the process.
+        """
         # set language
         try:
             _.set_language(settings.language)
@@ -152,6 +159,7 @@ if __name__ == "__main__":
         logging.getLogger("TwitchDrops.websocket").setLevel(settings.debug_ws)
 
         exit_status = 0
+        restart = False
         client = Twitch(settings)
         loop = asyncio.get_running_loop()
         if sys.platform == "linux":
@@ -174,13 +182,16 @@ if __name__ == "__main__":
                 loop.remove_signal_handler(signal.SIGTERM)
             client.print(_("gui", "status", "exiting"))
             await client.shutdown()
+
         if not client.gui.close_requested:
-            # user didn't request the closure
+            # user didn't request the closure → unexpected termination: prepare to restart
             client.gui.tray.change_icon("error")
             client.print(_("status", "terminated"))
             client.gui.status.update(_("gui", "status", "terminated"))
             # notify the user about the closure
             client.gui.grab_attention(sound=True)
+            restart = True
+
         client.gui.close()
         # save the application state
         # NOTE: we have to do it after wait_until_closed,
@@ -188,7 +199,8 @@ if __name__ == "__main__":
         client.save(force=True)
         client.gui.stop()
         client.gui.close_window()
-        sys.exit(exit_status)
+
+        return exit_status, restart
 
     try:
         # use lock_file to check if we're not already running
@@ -197,6 +209,30 @@ if __name__ == "__main__":
             # already running - exit
             sys.exit(3)
 
-        asyncio.run(main())
+        # Run main, and re-exec the interpreter if main requests a restart.
+        while True:
+            exit_status, restart = asyncio.run(main())
+
+            if not restart:
+                # normal exit requested by user (or non-restart exit) — exit now
+                sys.exit(exit_status)
+
+            # restart requested: close the lock file (release lock) and re-exec the process
+            try:
+                file.close()
+            except Exception:
+                # ignore; best-effort to release lock before exec
+                pass
+
+            # small sleep to avoid immediate crash/restart tight loop
+            time.sleep(1)
+
+            # Fully re-exec the current Python interpreter with same argv (works with PyInstaller)
+            os.execv(sys.executable, [sys.executable] + sys.argv)
+
     finally:
-        file.close()
+        # ensure the lock file handle is closed if we didn't execv
+        try:
+            file.close()
+        except Exception:
+            pass
